@@ -13,6 +13,23 @@ interface EntityExtractor {
 
 const INTENT_PATTERNS: IntentPattern[] = [
   {
+    type: "plan_meeting",
+    patterns: [
+      /(?:meeting|meet)\s+(?:with\s+)?(?:my\s+)?(?:\w+\s+)?(?:client|contact|customer).*(?:find|help|suggest|show|what|any|game|event|concert)/i,
+      /(?:plan|organize|set up|arrange)\s+(?:a\s+)?(?:client\s+)?meeting/i,
+      /(?:find|show|suggest)\s+(?:events?|games?|shows?)\s+.*(?:meeting|client|customer)/i,
+      /(?:take|bring|host)\s+(?:my\s+)?(?:client|contact).*(?:to\s+(?:a|an|the)\s+)?(?:game|event|show|concert)/i,
+      /(?:client\s+entertainment|entertain\s+(?:a\s+)?client).*(?:event|game|show|next|this|upcoming)/i,
+      /(?:like to|want to|need to)\s+plan\s+(?:a\s+)?(?:client\s+)?meeting/i,
+    ],
+    entityExtractors: [
+      { type: "company", pattern: /(?:my\s+)?(\w+)\s+client/i },
+      { type: "company", pattern: /(?:client|contact)\s+(?:from|at|with)\s+(\w+)/i },
+      { type: "date", pattern: /\b(today|tomorrow|this week|next week|this month|next month|this weekend)\b/i },
+      { type: "city", pattern: /\bin\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/ },
+    ],
+  },
+  {
     type: "find_event",
     patterns: [
       /(?:find|search|look for|show me|what|any|upcoming)\s+(?:events?|games?|shows?|concerts?|matches?)/i,
@@ -180,6 +197,7 @@ export function getIntentDescription(type: IntentType): string {
     view_rsvp_status: "Checking RSVP status",
     sell_unused_tickets: "Managing unused tickets",
     report_roi: "Viewing reports and ROI",
+    plan_meeting: "Planning a client meeting",
     general_question: "General question",
     unknown: "Processing request",
   };

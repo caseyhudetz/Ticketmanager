@@ -57,6 +57,7 @@ export default function Home() {
         allocate_tickets: "Help me allocate tickets",
         schedule_calendar: "Add an event to my calendar",
         report_roi: "Show me our hospitality ROI report",
+        plan_meeting: "I'd like to plan a meeting with my client, can you help me find events?",
       };
 
       const text = actionMessages[action] ?? "What can you help me with?";
@@ -67,6 +68,13 @@ export default function Home() {
 
   const handleAction = useCallback(
     (action: string) => {
+      // Handle dynamic flow city selection
+      if (action.startsWith("flow_select_city_")) {
+        const city = action.replace("flow_select_city_", "");
+        handleSend(city);
+        return;
+      }
+
       const actionMessages: Record<string, string> = {
         find_event: "Show me more events",
         filter_date: "Filter events by this month",
@@ -91,6 +99,14 @@ export default function Home() {
         export_pdf: "Export the report as PDF",
         compliance_report: "Show the compliance report",
         complete: "Thanks, I'm all set!",
+        // Flow-specific actions
+        flow_confirm_send: "Yes, send the invitation",
+        flow_cancel: "Cancel the meeting plan",
+        flow_edit_invitation: "Let me edit the invitation message",
+        flow_search_contact: "Search for a different contact",
+        flow_browse_contacts: "Show me all contacts",
+        flow_show_all_events: "Show all available events",
+        plan_meeting: "I'd like to plan a client meeting",
       };
 
       const text = actionMessages[action] ?? action;

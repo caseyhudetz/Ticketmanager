@@ -1,4 +1,9 @@
 import { Event, SalesforceContact, SalesforceAccount, Invitation, TicketAllocation } from "@/types";
+import {
+  startOfWeek, endOfWeek, startOfMonth, endOfMonth,
+  addWeeks, addMonths, parseISO, isWithinInterval,
+  startOfDay, endOfDay, addDays,
+} from "date-fns";
 
 // ── Mock Events ─────────────────────────────────────────────────────
 
@@ -105,6 +110,70 @@ export const MOCK_EVENTS: Event[] = [
     suiteInfo: "Patron Badge + Hospitality Chalet",
     location: { city: "Augusta", state: "GA" },
   },
+  {
+    id: "evt-009",
+    name: "Clippers vs. Suns",
+    venue: "Intuit Dome",
+    date: "2026-02-24",
+    time: "7:00 PM PST",
+    sport: "NBA",
+    category: "Basketball",
+    availableTickets: 6,
+    totalTickets: 8,
+    suiteInfo: "Courtside Club — Row AA",
+    location: { city: "Los Angeles", state: "CA" },
+  },
+  {
+    id: "evt-010",
+    name: "Kings vs. Mavericks",
+    venue: "Golden 1 Center",
+    date: "2026-02-25",
+    time: "7:00 PM PST",
+    sport: "NBA",
+    category: "Basketball",
+    availableTickets: 4,
+    totalTickets: 8,
+    location: { city: "Sacramento", state: "CA" },
+  },
+  {
+    id: "evt-011",
+    name: "Knicks vs. Nets",
+    venue: "Madison Square Garden",
+    date: "2026-02-26",
+    time: "7:30 PM ET",
+    sport: "NBA",
+    category: "Basketball",
+    availableTickets: 4,
+    totalTickets: 6,
+    suiteInfo: "Suite Level — Section 200",
+    location: { city: "New York", state: "NY" },
+  },
+  {
+    id: "evt-012",
+    name: "Sharks vs. Ducks",
+    venue: "SAP Center",
+    date: "2026-02-27",
+    time: "7:30 PM PST",
+    sport: "NHL",
+    category: "Hockey",
+    availableTickets: 8,
+    totalTickets: 10,
+    suiteInfo: "Executive Suite 12",
+    location: { city: "San Jose", state: "CA" },
+  },
+  {
+    id: "evt-013",
+    name: "Galaxy vs. LAFC",
+    venue: "Dignity Health Sports Park",
+    date: "2026-02-28",
+    time: "7:30 PM PST",
+    sport: "MLS",
+    category: "Soccer",
+    availableTickets: 6,
+    totalTickets: 10,
+    suiteInfo: "Champions Club Suite",
+    location: { city: "Los Angeles", state: "CA" },
+  },
 ];
 
 // ── Mock Salesforce Contacts ────────────────────────────────────────
@@ -193,6 +262,20 @@ export const MOCK_CONTACTS: SalesforceContact[] = [
     lastEventAttended: "Masters Tournament — Apr 2025",
     totalEventsAttended: 9,
     relationshipScore: 81,
+  },
+  {
+    id: "sf-007",
+    firstName: "Lisa",
+    lastName: "Nakamura",
+    email: "lnakamura@adobe.com",
+    phone: "+1 (408) 555-0201",
+    company: "Adobe",
+    title: "VP of Digital Strategy",
+    accountId: "acc-007",
+    accountName: "Adobe Inc.",
+    lastEventAttended: "Warriors vs. Suns — Jan 2026",
+    totalEventsAttended: 4,
+    relationshipScore: 78,
   },
 ];
 
@@ -283,4 +366,75 @@ export function getEventById(id: string): Event | undefined {
 
 export function getContactById(id: string): SalesforceContact | undefined {
   return MOCK_CONTACTS.find((c) => c.id === id);
+}
+
+// ── Date & Location Filtering ──────────────────────────────────────
+
+export function parseTimeframe(
+  text: string,
+  today: Date = new Date()
+): { label: string; start: Date; end: Date } | null {
+  const lower = text.toLowerCase();
+
+  if (lower.includes("today")) {
+    return { label: "today", start: startOfDay(today), end: endOfDay(today) };
+  }
+  if (lower.includes("tomorrow")) {
+    const tmrw = addDays(today, 1);
+    return { label: "tomorrow", start: startOfDay(tmrw), end: endOfDay(tmrw) };
+  }
+  if (lower.includes("this weekend")) {
+    const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+    const sat = addDays(weekStart, 5);
+    const sun = addDays(weekStart, 6);
+    return { label: "this weekend", start: startOfDay(sat), end: endOfDay(sun) };
+  }
+  if (lower.includes("next week")) {
+    const nextWeekStart = startOfWeek(addWeeks(today, 1), { weekStartsOn: 1 });
+    const nextWeekEnd = endOfWeek(addWeeks(today, 1), { weekStartsOn: 1 });
+    return { label: "next week", start: nextWeekStart, end: nextWeekEnd };
+  }
+  if (lower.includes("this week")) {
+    return {
+      label: "this week",
+      start: startOfWeek(today, { weekStartsOn: 1 }),
+      end: endOfWeek(today, { weekStartsOn: 1 }),
+    };
+  }
+  if (lower.includes("next month")) {
+    const nm = addMonths(today, 1);
+    return { label: "next month", start: startOfMonth(nm), end: endOfMonth(nm) };
+  }
+  if (lower.includes("this month")) {
+    return { label: "this month", start: startOfMonth(today), end: endOfMonth(today) };
+  }
+
+  return null;
+}
+
+export function filterEvents(
+  events: Event[],
+  options: { timeframe?: { start: Date; end: Date }; city?: string }
+): Event[] {
+  return events.filter((e) => {
+    let matches = true;
+
+    if (options.timeframe) {
+      const eventDate = parseISO(e.date);
+      matches = matches && isWithinInterval(eventDate, {
+        start: options.timeframe.start,
+        end: options.timeframe.end,
+      });
+    }
+
+    if (options.city) {
+      const cityLower = options.city.toLowerCase();
+      matches = matches && (
+        e.location.city.toLowerCase().includes(cityLower) ||
+        e.location.state.toLowerCase().includes(cityLower)
+      );
+    }
+
+    return matches;
+  });
 }

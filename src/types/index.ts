@@ -47,6 +47,7 @@ export type IntentType =
   | "view_rsvp_status"
   | "sell_unused_tickets"
   | "report_roi"
+  | "plan_meeting"
   | "general_question"
   | "unknown";
 
@@ -162,6 +163,38 @@ export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
+}
+
+// ── Meeting Planner Flow ───────────────────────────────────────────
+
+export type MeetingFlowStep =
+  | "client_identification"
+  | "location"
+  | "event_discovery"
+  | "event_selection"
+  | "invitation_preview"
+  | "send_confirmation"
+  | "completed";
+
+export interface MeetingFlowData {
+  selectedContact?: SalesforceContact;
+  candidateContacts?: SalesforceContact[];
+  companyName?: string;
+  location?: string;
+  timeframe?: {
+    label: string;
+    start: Date;
+    end: Date;
+  };
+  matchedEvents?: Event[];
+  selectedEvent?: Event;
+  invitation?: Invitation;
+}
+
+export interface MeetingFlowState {
+  currentStep: MeetingFlowStep;
+  data: MeetingFlowData;
+  active: boolean;
 }
 
 // ── Chat Action Buttons ─────────────────────────────────────────────

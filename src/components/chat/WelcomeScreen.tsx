@@ -8,16 +8,16 @@ interface WelcomeScreenProps {
 
 const SUGGESTIONS = [
   {
+    icon: Users,
+    title: "Plan a client meeting",
+    text: "Next week I'm meeting with my Adobe client, can you help me find games that would work?",
+    color: "bg-indigo-50 text-indigo-600",
+  },
+  {
     icon: Search,
     title: "Find upcoming events",
     text: "Show me upcoming NBA games this month",
     color: "bg-blue-50 text-blue-600",
-  },
-  {
-    icon: Users,
-    title: "Invite a client",
-    text: "Invite Sarah Chen from TechCorp to the Lakers game",
-    color: "bg-purple-50 text-purple-600",
   },
   {
     icon: Ticket,

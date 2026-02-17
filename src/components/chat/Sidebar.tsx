@@ -57,7 +57,7 @@ const RECENT_CONVERSATIONS: ConversationStub[] = [
 
 const QUICK_ACTIONS = [
   { icon: Search, label: "Find events", action: "find_event" },
-  { icon: Users, label: "Invite a client", action: "invite_client" },
+  { icon: Users, label: "Plan meeting", action: "plan_meeting" },
   { icon: Ticket, label: "Manage tickets", action: "allocate_tickets" },
   { icon: Calendar, label: "Calendar", action: "schedule_calendar" },
   { icon: BarChart3, label: "ROI reports", action: "report_roi" },
